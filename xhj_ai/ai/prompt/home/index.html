@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D 小世界编辑器</title>
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    background: linear-gradient(135deg, #fdf6e3 0%, #f5e6d3 50%, #ede0d4 100%);
+    min-height: 100vh;
+}
+
+#canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* 磨砂玻璃面板基础样式 */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 顶部栏 */
+.top-bar {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 100;
+    gap: 20px;
+}
+
+.title-panel {
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.title-panel h1 {
+    font-size: 22px;
+    color: #5d4e37;
+    font-weight: 600;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #8b7355;
+    font-style: italic;
+}
+
+.save-panel {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.save-select {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    color: #5d4e37;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+}
+
+.save-select:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-reset {
+    background: linear-gradient(135deg, #a8d8a8 0%, #7ec87e 100%);
+    color: #2d5a2d;
+}
+
+.btn-reset:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(126, 200, 126, 0.4);
+}
+
+.btn-clear {
+    background: linear-gradient(135deg, #f8c8c8 0%, #f0a0a0 100%);
+    color: #7a3a3a;
+}
+
+.btn-clear:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(240, 160, 160, 0.4);
+}
+
+/* 底部工具栏 */
+.toolbar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    z-index: 100;
+}
+
+.tool-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.3);
+    min-width: 70px;
+}
+
+.tool-card:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: translateY(-3px);
+}
+
+.tool-card.active {
+    background: rgba(135, 206, 235, 0.5);
+    border: 2px solid #87ceeb;
+    transform: translateY(-3px);
+}
+
+.tool-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.tool-label {
+    font-size: 12px;
+    color: #5d4e37;
+    font-weight: 500;
+}
+
+/* 小地图 */
+.minimap-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 10px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+#minimap {
+    border-radius: 10px;
+    display: block;
+}
+
+.minimap-label {
+    font-size: 11px;
+    color: #8b7355;
+    font-weight: 500;
+}
+
+/* 操作提示 */
+.hint {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 16px 28px;
+    font-size: 16px;
+    color: #5d4e37;
+    font-weight: 500;
+    z-index: 200;
+    animation: fadeOut 3s ease-out forwards;
+    animation-delay: 2s;
+    pointer-events: none;
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .toolbar {
+        gap: 4px;
+        padding: 8px;
+    }
+    
+    .tool-card {
+        padding: 8px 10px;
+        min-width: 55px;
+    }
+    
+    .tool-icon {
+        font-size: 22px;
+    }
+    
+    .tool-label {
+        font-size: 10px;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- 3D 画布容器 -->
+    <div id="canvas-container"></div>
+
+    <!-- 顶部标题栏 -->
+    <div class="top-bar">
+        <div class="title-panel glass-panel">
+            <h1>🏠 3D 小世界编辑器</h1>
+            <span class="subtitle">摆在桌子上的小模型</span>
+        </div>
+        
+        <div class="save-panel glass-panel">
+            <select id="save-select" class="save-select">
+                <option value="0">存档 1</option>
+                <option value="1">存档 2</option>
+                <option value="2">存档 3</option>
+            </select>
+            <button id="reset-btn" class="btn btn-reset">🎲 生成村庄</button>
+            <button id="clear-btn" class="btn btn-clear">🧹 清空世界</button>
+        </div>
+    </div>
+
+    <!-- 底部工具栏 -->
+    <div class="toolbar glass-panel">
+        <div class="tool-card active" data-tool="grass">
+            <span class="tool-icon">🌿</span>
+            <span class="tool-label">草地</span>
+        </div>
+        <div class="tool-card" data-tool="dirt">
+            <span class="tool-icon">🛤️</span>
+            <span class="tool-label">土路</span>
+        </div>
+        <div class="tool-card" data-tool="water">
+            <span class="tool-icon">💧</span>
+            <span class="tool-label">水</span>
+        </div>
+        <div class="tool-card" data-tool="stone">
+            <span class="tool-icon">🪨</span>
+            <span class="tool-label">石头</span>
+        </div>
+        <div class="tool-card" data-tool="tree">
+            <span class="tool-icon">🌳</span>
+            <span class="tool-label">树</span>
+        </div>
+        <div class="tool-card" data-tool="house">
+            <span class="tool-icon">🏠</span>
+            <span class="tool-label">房子</span>
+        </div>
+        <div class="tool-card" data-tool="erase">
+            <span class="tool-icon">✨</span>
+            <span class="tool-label">擦除</span>
+        </div>
+    </div>
+
+    <!-- 小地图 -->
+    <div class="minimap-container glass-panel">
+        <canvas id="minimap" width="160" height="160"></canvas>
+        <div class="minimap-label">小地图</div>
+    </div>
+
+    <!-- 操作提示 -->
+    <div id="hint" class="hint glass-panel">
+        🖱️ 拖拽旋转 · 滚轮缩放 · 点击放置
+    </div>
+
+    <!-- Three.js r128 CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+(function() {
+    'use strict';
+
+    // ========================================
+    // 配置常量
+    // ========================================
+    const CONFIG = {
+        GRID_SIZE: 8,
+        CELL_SIZE: 1,
+        CAMERA_DISTANCE: 12,
+        CAMERA_MIN_DISTANCE: 6,
+        CAMERA_MAX_DISTANCE: 20,
+        ROTATION_SPEED: 0.005,
+        ZOOM_SPEED: 0.002
+    };
+
+    const COLORS = {
+        grass: 0x7cb342,
+        dirt: 0x8d6e63,
+        water: 0x4fc3f7,
+        stone: 0x90a4ae,
+        tree: 0x558b2f,
+        house: 0xffcc80,
+        roof: 0xe57373
+    };
+
+    // ========================================
+    // 全局状态
+    // ========================================
+    let scene, camera, renderer, raycaster, mouse;
+    let world = [];
+    let meshMap = new Map();
+    let currentTool = 'grass';
+    let currentSave = 0;
+    let isDragging = false;
+    let previousMousePosition = { x: 0, y: 0 };
+    let cameraAngle = { theta: Math.PI / 4, phi: Math.PI / 4 };
+    let cameraDistance = CONFIG.CAMERA_DISTANCE;
+    let minimapCtx;
+
+    // ========================================
+    // 场景初始化
+    // ========================================
+    function initScene() {
+        const container = document.getElementById('canvas-container');
+        
+        // 场景
+        scene = new THREE.Scene();
+        
+        // 相机
+        camera = new THREE.PerspectiveCamera(
+            45,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        updateCameraPosition();
+        
+        // 渲染器
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+        
+        // 射线检测
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
+        
+        // 窗口大小变化
+        window.addEventListener('resize', onWindowResize);
+    }
+
+    // ========================================
+    // 光照系统 - 柔和日光
+    // ========================================
+    function initLighting() {
+        // 环境光 - 柔和填充
+        const ambientLight = new THREE.AmbientLight(0xfff8e7, 0.5);
+        scene.add(ambientLight);
+        
+        // 主方向光 - 日光感
+        const dirLight = new THREE.DirectionalLight(0xfff5e6, 0.8);
+        dirLight.position.set(8, 15, 8);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        dirLight.shadow.camera.near = 0.5;
+        dirLight.shadow.camera.far = 50;
+        dirLight.shadow.camera.left = -10;
+        dirLight.shadow.camera.right = 10;
+        dirLight.shadow.camera.top = 10;
+        dirLight.shadow.camera.bottom = -10;
+        dirLight.shadow.bias = -0.001;
+        scene.add(dirLight);
+        
+        // 补光
+        const fillLight = new THREE.DirectionalLight(0xe3f2fd, 0.3);
+        fillLight.position.set(-5, 5, -5);
+        scene.add(fillLight);
+    }
+
+    // ========================================
+    // 相机控制 - 自行实现拖拽旋转 + 滚轮缩放
+    // ========================================
+    function initCameraControls() {
+        const canvas = renderer.domElement;
+        
+        // 拖拽旋转
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 0) {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            }
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+                
+                cameraAngle.theta -= deltaX * CONFIG.ROTATION_SPEED;
+                cameraAngle.phi = Math.max(0.1, Math.min(Math.PI / 2 - 0.1, 
+                    cameraAngle.phi - deltaY * CONFIG.ROTATION_SPEED));
+                
+                updateCameraPosition();
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            }
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            isDragging = false;
+        });
+        
+        // 滚轮缩放
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            cameraDistance = Math.max(CONFIG.CAMERA_MIN_DISTANCE, 
+                Math.min(CONFIG.CAMERA_MAX_DISTANCE, 
+                cameraDistance + e.deltaY * CONFIG.ZOOM_SPEED));
+            updateCameraPosition();
+        }, { passive: false });
+    }
+
+    function updateCameraPosition() {
+        const x = cameraDistance * Math.sin(cameraAngle.phi) * Math.cos(cameraAngle.theta);
+        const y = cameraDistance * Math.cos(cameraAngle.phi);
+        const z = cameraDistance * Math.sin(cameraAngle.phi) * Math.sin(cameraAngle.theta);
+        
+        camera.position.set(x, y, z);
+        camera.lookAt(CONFIG.GRID_SIZE / 2 - 0.5, 0, CONFIG.GRID_SIZE / 2 - 0.5);
+    }
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // ========================================
+    // 几何体工厂 - 只用Three.js内置几何体
+    // ========================================
+    const GeometryFactory = {
+        createBase(color) {
+            const geometry = new THREE.BoxGeometry(0.95, 0.3, 0.95);
+            const material = new THREE.MeshLambertMaterial({ color });
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            return mesh;
+        },
+        
+        createGrass() {
+            const group = new THREE.Group();
+            const base = this.createBase(COLORS.grass);
+            group.add(base);
+            
+            // 小草装饰
+            for (let i = 0; i < 3; i++) {
+                const bladeGeo = new THREE.ConeGeometry(0.03, 0.15, 4);
+                const bladeMat = new THREE.MeshLambertMaterial({ color: 0x558b2f });
+                const blade = new THREE.Mesh(bladeGeo, bladeMat);
+                blade.position.set(
+                    (Math.random() - 0.5) * 0.5,
+                    0.22,
+                    (Math.random() - 0.5) * 0.5
+                );
+                group.add(blade);
+            }
+            return group;
+        },
+        
+        createDirt() {
+            const group = new THREE.Group();
+            const base = this.createBase(COLORS.dirt);
+            group.add(base);
+            
+            // 土路纹理装饰
+            for (let i = 0; i < 4; i++) {
+                const pebbleGeo = new THREE.SphereGeometry(0.04, 6, 6);
+                const pebbleMat = new THREE.MeshLambertMaterial({ color: 0x6d4c41 });
+                const pebble = new THREE.Mesh(pebbleGeo, pebbleMat);
+                pebble.position.set(
+                    (Math.random() - 0.5) * 0.6,
+                    0.18,
+                    (Math.random() - 0.5) * 0.6
+                );
+                group.add(pebble);
+            }
+            return group;
+        },
+        
+        createWater() {
+            const group = new THREE.Group();
+            const baseGeo = new THREE.BoxGeometry(0.95, 0.15, 0.95);
+            const baseMat = new THREE.MeshLambertMaterial({ 
+                color: COLORS.water,
+                transparent: true,
+                opacity: 0.85
+            });
+            const base = new THREE.Mesh(baseGeo, baseMat);
+            base.position.y = -0.07;
+            base.receiveShadow = true;
+            group.add(base);
+            
+            // 水波纹
+            const rippleGeo = new THREE.TorusGeometry(0.2, 0.02, 8, 16);
+            const rippleMat = new THREE.MeshLambertMaterial({ 
+                color: 0x81d4fa,
+                transparent: true,
+                opacity: 0.6
+            });
+            const ripple = new THREE.Mesh(rippleGeo, rippleMat);
+            ripple.rotation.x = Math.PI / 2;
+            ripple.position.y = 0.02;
+            group.add(ripple);
+            
+            return group;
+        },
+        
+        createStone() {
+            const group = new THREE.Group();
+            const base = this.createBase(COLORS.grass);
+            group.add(base);
+            
+            // 石头堆
+            const stonePositions = [
+                [0, 0.25, 0],
+                [-0.15, 0.18, 0.15],
+                [0.15, 0.15, -0.12]
+            ];
+            
+            stonePositions.forEach(([x, y, z], i) => {
+                const size = 0.15 + Math.random() * 0.1;
+                const stoneGeo = new THREE.IcosahedronGeometry(size, 0);
+                const stoneMat = new THREE.MeshLambertMaterial({ color: COLORS.stone });
+                const stone = new THREE.Mesh(stoneGeo, stoneMat);
+                stone.position.set(x, y, z);
+                stone.rotation.set(Math.random(), Math.random(), Math.random());
+                stone.castShadow = true;
+                group.add(stone);
+            });
+            
+            return group;
+        },
+        
+        createTree() {
+            const group = new THREE.Group();
+            const base = this.createBase(COLORS.grass);
+            group.add(base);
+            
+            // 树干
+            const trunkGeo = new THREE.CylinderGeometry(0.06, 0.08, 0.5, 6);
+            const trunkMat = new THREE.MeshLambertMaterial({ color: 0x8d6e63 });
+            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+            trunk.position.y = 0.4;
+            trunk.castShadow = true;
+            group.add(trunk);
+            
+            // 树冠 - 三层
+            const crownColors = [0x66bb6a, 0x81c784, 0xa5d6a7];
+            for (let i = 0; i < 3; i++) {
+                const crownGeo = new THREE.IcosahedronGeometry(0.35 - i * 0.08, 1);
+                const crownMat = new THREE.MeshLambertMaterial({ color: crownColors[i] });
+                const crown = new THREE.Mesh(crownGeo, crownMat);
+                crown.position.y = 0.7 + i * 0.2;
+                crown.castShadow = true;
+                group.add(crown);
+            }
+            
+            return group;
+        },
+        
+        createHouse() {
+            const group = new THREE.Group();
+            const base = this.createBase(COLORS.grass);
+            group.add(base);
+            
+            // 房子主体
+            const houseGeo = new THREE.BoxGeometry(0.6, 0.5, 0.6);
+            const houseMat = new THREE.MeshLambertMaterial({ color: COLORS.house });
+            const house = new THREE.Mesh(houseGeo, houseMat);
+            house.position.y = 0.4;
+            house.castShadow = true;
+            group.add(house);
+            
+            // 屋顶
+            const roofGeo = new THREE.ConeGeometry(0.5, 0.35, 4);
+            const roofMat = new THREE.MeshLambertMaterial({ color: COLORS.roof });
+            const roof = new THREE.Mesh(roofGeo, roofMat);
+            roof.position.y = 0.82;
+            roof.rotation.y = Math.PI / 4;
+            roof.castShadow = true;
+            group.add(roof);
+            
+            // 门
+            const doorGeo = new THREE.BoxGeometry(0.15, 0.25, 0.05);
+            const doorMat = new THREE.MeshLambertMaterial({ color: 0x5d4037 });
+            const door = new THREE.Mesh(doorGeo, doorMat);
+            door.position.set(0, 0.27, 0.3);
+            group.add(door);
+            
+            // 窗户
+            const windowGeo = new THREE.BoxGeometry(0.12, 0.12, 0.05);
+            const windowMat = new THREE.MeshLambertMaterial({ color: 0x81d4fa });
+            const window1 = new THREE.Mesh(windowGeo, windowMat);
+            window1.position.set(0.18, 0.45, 0.3);
+            group.add(window1);
+            
+            return group;
+        },
+        
+        createErase() {
+            return this.createGrass();
+        },
+        
+        create(kind) {
+            switch (kind) {
+                case 'grass': return this.createGrass();
+                case 'dirt': return this.createDirt();
+                case 'water': return this.createWater();
+                case 'stone': return this.createStone();
+                case 'tree': return this.createTree();
+                case 'house': return this.createHouse();
+                case 'erase': return this.createErase();
+                default: return this.createGrass();
+            }
+        }
+    };
+
+    // ========================================
+    // 数据管理 - 统一 setCell 入口
+    // ========================================
+    function initWorld() {
+        world = [];
+        for (let x = 0; x < CONFIG.GRID_SIZE; x++) {
+            world[x] = [];
+            for (let z = 0; z < CONFIG.GRID_SIZE; z++) {
+                world[x][z] = { terrain: 'grass', kind: 'grass' };
+            }
+        }
+    }
+
+    function setCell(x, z, kind) {
+        if (x < 0 || x >= CONFIG.GRID_SIZE || z < 0 || z >= CONFIG.GRID_SIZE) return;
+        
+        // 移除旧网格
+        const key = `${x},${z}`;
+        if (meshMap.has(key)) {
+            const oldMesh = meshMap.get(key);
+            scene.remove(oldMesh);
+        }
+        
+        // 更新数据
+        const actualKind = kind === 'erase' ? 'grass' : kind;
+        world[x][z] = { terrain: actualKind, kind: actualKind };
+        
+        // 创建新网格
+        const mesh = GeometryFactory.create(actualKind);
+        mesh.position.set(x, 0, z);
+        mesh.userData = { gridX: x, gridZ: z };
+        scene.add(mesh);
+        meshMap.set(key, mesh);
+        
+        // 更新小地图
+        updateMinimap();
+        
+        // 保存
+        saveWorld();
+    }
+
+    function rebuildWorld() {
+        // 清空所有网格
+        meshMap.forEach(mesh => scene.remove(mesh));
+        meshMap.clear();
+        
+        // 重建
+        for (let x = 0; x < CONFIG.GRID_SIZE; x++) {
+            for (let z = 0; z < CONFIG.GRID_SIZE; z++) {
+                const kind = world[x][z].kind;
+                const mesh = GeometryFactory.create(kind);
+                mesh.position.set(x, 0, z);
+                mesh.userData = { gridX: x, gridZ: z };
+                scene.add(mesh);
+                meshMap.set(`${x},${z}`, mesh);
+            }
+        }
+        updateMinimap();
+    }
+
+    // ========================================
+    // 交互逻辑
+    // ========================================
+    function initInteraction() {
+        renderer.domElement.addEventListener('click', onClick);
+        
+        // 工具选择
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                currentTool = card.dataset.tool;
+            });
+        });
+        
+        // 存档切换
+        document.getElementById('save-select').addEventListener('change', (e) => {
+            currentSave = parseInt(e.target.value);
+            loadWorld();
+        });
+        
+        // 生成村庄
+        document.getElementById('reset-btn').addEventListener('click', generateVillage);
+        
+        // 清空世界
+        document.getElementById('clear-btn').addEventListener('click', clearWorld);
+    }
+
+    function onClick(event) {
+        if (isDragging) return;
+        
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(scene.children, true);
+        
+        if (intersects.length > 0) {
+            let obj = intersects[0].object;
+            while (obj.parent && !obj.userData.hasOwnProperty('gridX')) {
+                obj = obj.parent;
+            }
+            
+            if (obj.userData.hasOwnProperty('gridX')) {
+                setCell(obj.userData.gridX, obj.userData.gridZ, currentTool);
+            }
+        }
+    }
+
+    // ========================================
+    // 程序化村庄生成
+    // ========================================
+    function generateVillage() {
+        // 先全部清空为草地
+        for (let x = 0; x < CONFIG.GRID_SIZE; x++) {
+            for (let z = 0; z < CONFIG.GRID_SIZE; z++) {
+                world[x][z] = { terrain: 'grass', kind: 'grass' };
+            }
+        }
+        
+        // 1. 水塘 (2x2)
+        const pondX = Math.floor(Math.random() * 3) + 1;
+        const pondZ = Math.floor(Math.random() * 3) + 5;
+        for (let dx = 0; dx < 2; dx++) {
+            for (let dz = 0; dz < 2; dz++) {
+                world[pondX + dx][pondZ + dz].kind = 'water';
+            }
+        }
+        
+        // 2. 房子 (2-3栋)
+        const houseCount = 2 + Math.floor(Math.random() * 2);
+        const housePositions = [];
+        for (let i = 0; i < houseCount; i++) {
+            let hx, hz;
+            do {
+                hx = Math.floor(Math.random() * 5) + 2;
+                hz = Math.floor(Math.random() * 4) + 1;
+            } while (housePositions.some(p => Math.abs(p.x - hx) < 2 && Math.abs(p.z - hz) < 2));
+            housePositions.push({ x: hx, z: hz });
+            world[hx][hz].kind = 'house';
+        }
+        
+        // 3. 树 (4-6棵)
+        const treeCount = 4 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < treeCount; i++) {
+            let tx, tz;
+            do {
+                tx = Math.floor(Math.random() * CONFIG.GRID_SIZE);
+                tz = Math.floor(Math.random() * CONFIG.GRID_SIZE);
+            } while (world[tx][tz].kind !== 'grass');
+            world[tx][tz].kind = 'tree';
+        }
+        
+        // 4. 石头堆 (2-3堆)
+        const stoneCount = 2 + Math.floor(Math.random() * 2);
+        for (let i = 0; i < stoneCount; i++) {
+            let sx, sz;
+            do {
+                sx = Math.floor(Math.random() * CONFIG.GRID_SIZE);
+                sz = Math.floor(Math.random() * CONFIG.GRID_SIZE);
+            } while (world[sx][sz].kind !== 'grass');
+            world[sx][sz].kind = 'stone';
+        }
+        
+        // 5. 连通的小路 - 连接所有房子
+        housePositions.forEach((house, i) => {
+            if (i > 0) {
+                const prev = housePositions[i - 1];
+                let cx = prev.x, cz = prev.z;
+                while (cx !== house.x || cz !== house.z) {
+                    if (world[cx][cz].kind === 'grass') {
+                        world[cx][cz].kind = 'dirt';
+                    }
+                    if (cx < house.x) cx++;
+                    else if (cx > house.x) cx--;
+                    else if (cz < house.z) cz++;
+                    else if (cz > house.z) cz--;
+                }
+            }
+        });
+        
+        rebuildWorld();
+        saveWorld();
+    }
+
+    function clearWorld() {
+        for (let x = 0; x < CONFIG.GRID_SIZE; x++) {
+            for (let z = 0; z < CONFIG.GRID_SIZE; z++) {
+                setCell(x, z, 'grass');
+            }
+        }
+    }
+
+    // ========================================
+    // 本地存储持久化
+    // ========================================
+    function saveWorld() {
+        const data = JSON.stringify(world);
+        localStorage.setItem(`3d-world-save-${currentSave}`, data);
+    }
+
+    function loadWorld() {
+        const data = localStorage.getItem(`3d-world-save-${currentSave}`);
+        if (data) {
+            world = JSON.parse(data);
+            rebuildWorld();
+        } else {
+            generateVillage();
+        }
+    }
+
+    // ========================================
+    // 小地图渲染
+    // ========================================
+    function initMinimap() {
+        const canvas = document.getElementById('minimap');
+        minimapCtx = canvas.getContext('2d');
+        updateMinimap();
+    }
+
+    function updateMinimap() {
+        const cellSize = 20;
+        minimapCtx.fillStyle = '#f5f5dc';
+        minimapCtx.fillRect(0, 0, 160, 160);
+        
+        const colorMap = {
+            grass: '#90a955',
+            dirt: '#a98467',
+            water: '#74c0fc',
+            stone: '#adb5bd',
+            tree: '#2b8a3e',
+            house: '#ff922b'
+        };
+        
+        for (let x = 0; x < CONFIG.GRID_SIZE; x++) {
+            for (let z = 0; z < CONFIG.GRID_SIZE; z++) {
+                const kind = world[x][z].kind;
+                minimapCtx.fillStyle = colorMap[kind] || '#90a955';
+                minimapCtx.fillRect(x * cellSize, z * cellSize, cellSize - 1, cellSize - 1);
+                
+                // 树和房子画剪影标记
+                if (kind === 'tree' || kind === 'house') {
+                    minimapCtx.fillStyle = kind === 'tree' ? '#1b4332' : '#d9480f';
+                    minimapCtx.beginPath();
+                    minimapCtx.arc(
+                        x * cellSize + cellSize / 2,
+                        z * cellSize + cellSize / 2,
+                        5, 0, Math.PI * 2
+                    );
+                    minimapCtx.fill();
+                }
+            }
+        }
+    }
+
+    // ========================================
+    // 动画循环
+    // ========================================
+    function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+    }
+
+    // ========================================
+    // 启动
+    // ========================================
+    function init() {
+        initScene();
+        initLighting();
+        initCameraControls();
+        initWorld();
+        initInteraction();
+        initMinimap();
+        loadWorld();
+        animate();
+    }
+
+    // 启动应用
+    init();
+
+})();
+    </script>
+</body>
+</html>
