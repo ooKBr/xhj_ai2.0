@@ -32,3 +32,9 @@ openclaw hermes mac mini 涨价了 一台mac mini 的权限给它
 /plan 开启规划模式
 
 ## 接手一个项目
+- 可以看文档 claude.md 文件
+- 如果没有可以使用
+  /init 初始化
+  cc 是我们的员工
+  cc 读取了文件代码，把他的理解写入了claude.md 文件
+  - chat 模式继续了解项目
