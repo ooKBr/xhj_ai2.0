@@ -34,3 +34,37 @@
 ## html
 - 语义化标签 
 div 用来做盒子 不能一直用div
+
+/**/
+
+## html 文档
+- 都是文本类型
+    text/plain 纯文本
+    text/html html标签 使用 http 超文本传输协议 用browser解析的document
+    <!DOCTYPE html>    // ! 用于标记这是html的最新版本 即 html5，区别 html4
+
+- dom 编程
+    DOM 是 js 里的Document Node
+    html里面是标签，js里面是对象（映射关系） 通过js 可以操作html标签
+   document.querySelector()
+   document 对象 用选择器查找标签
+   从html 页面来到了js内存中
+   .innerHTML 动态修改DOM 的内容
+
+### 大厂特别注重底层
+      从html 语义化标签
+      js DOM 编程
+      模块化 动态插入html
+      js 前端 准备好了document 对象，
+      document 是树状结构, document.documentElement 是根节点
+      document.body 是我们看到的页面
+      document.querySelector 进行travel查找 树
+      可以查看节点，也可以知道孩子节点，兄弟节点，还可以挂载节点
+
+## 后端准备
+js 可以前端，后端，AI
+ npm 即 node package management
+- npm init -y 
+    会增加一个 package.json  **后端**项目描述文件
+- npm i json-server
+    把对象字面量 作为http server 来提供服务

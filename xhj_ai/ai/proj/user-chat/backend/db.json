@@ -1,0 +1,22 @@
+{
+    "users":[
+{
+    "id":1,
+    "name":"xi haojun",
+    "age":20,
+    "hometown":"吉安"
+}, 
+{
+    "id":2,
+    "name":"li si",
+    "age":19,
+    "hometown":"北京"
+},
+{
+    "id":3,
+    "name":"wangwu",
+    "age":20,
+    "hometown":"上海"
+   }
+    ]
+}
