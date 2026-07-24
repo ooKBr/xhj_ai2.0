@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // 编译阶段 准备好作用域 global{showName(), myName}
+        showName();
+        console.log(myName);
+        var myName = 'xhj';
+        function showName() {
+            // 编译阶段二，为showName 的执行而准备
+            console.log('函数showName被执行了')
+        }
+    </script>
+</body>
+</html>

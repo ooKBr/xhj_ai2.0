@@ -31,6 +31,7 @@ JS 是一个KPI项目，一周就开发出来
 
 - Assignment to constant variable  常量不能改变
 - ReferenceError: XXX is not defined  变量未定义
+- ReferenceError: Cannot access 'XXX' before initialization 不能访问这个变量在初始化之前
 
 ## var let const 
 早期的js 使用var 申明变量，没有常量，只能用代码规范约束
@@ -52,4 +53,14 @@ const variale
 简单数据类型不可以改变值
 复杂数据类型值可以改变，类型不可以改变
 
-## 变量的提升
+## 变量的提升 hoisting
+- 代码先有编译阶段
+    准备执行上下文
+    全局执行上下文
+    编译阶段会把全局作用域里的变量提升到最前面，即变量提升
+- 再有执行阶段
+- 但是这是不好的东西
+    和代码顺序，直觉不符合
+    应避免变量提升
+- 怎么解决 
+    用let 代替var，let 不支持变量提升
