@@ -1,0 +1,16 @@
+{
+  "name": "demo2",
+  "version": "1.0.0",
+  "description": "自然语言处理（Natural Language Processing）是指计算机能够理解和生成人类语言的技术。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  }
+}
