@@ -1,9 +1,11 @@
 // JavaScript 执行机制对于开发者至关重要。
 // 代码是怎么执行的
-showName()
+showName('极客时间')
 console.log(myname)
 
 var myname = 'xhj'
-function showName() {
+function showName(name) {
+    console.log(name);
+    var b = 1;
     console.log('函数showName执行');
 }
