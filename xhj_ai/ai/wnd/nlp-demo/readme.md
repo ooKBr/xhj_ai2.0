@@ -7,14 +7,14 @@
   - 好复用  引入
 - 项目的模块化搭建
   - main.mjs 单点入口 （鉴权、路由）
-  - client.mjs client 对象
+  - client.mjs  封装client 对象 
   - completion.mjs 完成任务的函数
  
 ## es6 语法特性
 es6 是javascript 在2015年推出的新版本，变化比较大，目标是让JS 成为一个企业级大型项目开发语言。
-- let const 声明提升bug ,支持块级作用域
-  let const 不能重复声明， const 简单数据类型不能重新赋值，复杂数据类型可以重新赋值，但不可以改变其指向的内存地址（类型）
-- ... rest 运算符 收 | spread 展开运算符
+- let const 解决了声明提升bug ,支持块级作用域
+  let const 不能重复声明， const 对于简单数据类型不能重新赋值，复杂数据类型（对象、数组、函数）可以重新赋值，但不可以改变其指向的内存地址（类型）
+- ... rest 运算符 收集 | spread 展开运算符
 - 解构赋值
   - 对象
   - 数组 简洁且性能好
