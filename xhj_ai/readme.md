@@ -40,14 +40,14 @@ AI Engineering(Harness 工程)
 
 ## 学习内容
 ### 前端
-- hrml 语义化标签，BEM 命名规范
-- es6 array API 正则
+- hrml 语义化标签， BEM 命名规范
+- es6  array API  正则
 - 你不知道的Javascript
     js执行机制和原型链
 ### 后端
 - python list & dict
-- node process & esm
-- restful api 设计
+- node  process & esm
+- restful 发送请求  api 设计
 ### AI
 - prompt
 - AIGC 接口
