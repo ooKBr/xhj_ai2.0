@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+    //  const arr = (new Array(7)).fill([]) //二维数组 但是每个元素都是同一个数组 不行
+    //  console.log(arr);
+    //  arr[0][0] = 1;
+    //  console.log(arr);
+    const arr = new Array(7);
+    const len = arr.length;
+    for(let i = 0; i < len;i++) {
+        arr[i] = [];
+    }
+    console.log(arr);
+    arr[0][0] = 1;
+    console.log(arr);
+    // 对象属性访问arr.length 性能较差 需要优化 把他提前声明出来 使用变量代替
+    const outerLen = arr.length;
+ // for (let i = 0; i < arr.length;i++) {
+    for (let i = 0; i < outerLen;i++) {
+        const innerLen = arr[i].length;
+        for(let j = 0;j < innerLen;j++) {
+           console.log(arr[i][j],i,j);
+        }
+    }
+    </script>
+</body>
+</html>
