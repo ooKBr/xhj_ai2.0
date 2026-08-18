@@ -27,5 +27,33 @@ LLM + tools = Agent
   users  name string not null unique
 
   llm 概率随机，工具描述得具体清晰
--
--
+
+  在这个阶段，一个复杂的软件工具（get_close_price等），被降维成了一个存粹的文本描述（JSON schema）
+  用户提问 青岛啤酒的收盘价是多少？
+  llm 回答不了
+- 意图识别
+  llm 告知调用工具 content"", tool_calls 要调用的工具并中断执行。 id , function name , arguments
+  API 转成语言的精确性（description,schema）
+  用户问：上海的天气怎么样？
+  llm 推理引擎开始工作，它会进行一系列的快速评估。
+  首先，在原始训练语料中，问，不能回答。
+  接着绕回来，认知植入里有工具吗？
+  它真有，get_weather 工具。
+  AI 会停止和你的对话，转而开始自言自语（思考），它严格按照我们刚刚定义的那套说明书，去生成一段自然语言的调用代码
+  tool_calls:[{
+    "type": "function",
+    "function":{
+      "name":"get_weather",
+      "arguments":JSON.stringify({"city":"上海"})
+    }
+  }]
+
+  llm 不能执行，开发者可以
+  它依赖的是强大的模式识别和逻辑推理能力。
+  它赌这段代码发出后，会有人响应，即开发者
+- runtime 的介入
+    传统软件runtime 调用工具，执行任务。node/python/java
+    人/AI 都可以调用，只管一件事，执行，拿到结果。
+    不是直接返回给用户，而是返回给大模型（用户交互接口），
+    大模型再根据结果继续执行。
+    最开始用户问什么，llm 怎么决策，runtime 给了什么，根据上下文生成最后的返回。
