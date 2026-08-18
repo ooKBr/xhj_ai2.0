@@ -40,7 +40,7 @@ async function run() {
     const vec2 = await getEmbedding(text2);
     const vec3 = await getEmbedding(text3);
     console.log(cosineSimilarity(vec1, vec2));
-    console.log(cosineSimilarity(vec1, vec3));
+    console.log(cosineSimilarity(vec1, vec3)); 
     // console.log(vec1);
     // console.log(vec1.length);
 }
