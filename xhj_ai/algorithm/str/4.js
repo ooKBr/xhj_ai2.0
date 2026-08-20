@@ -10,10 +10,10 @@ function validPalidrome(s) {
    if(isPalidrome(i + 1, j)) {
     return true;
    }
-   if(!isPalidrome(i, j - 1)) {
+   if(isPalidrome(i, j - 1)) {
     return true;
    }
-  function isPalindrome(st,ed) {
+  function isPalidrome(st,ed) {
     while(st < ed) {
         if(s[st] !== s[ed]) {
             return false;
@@ -25,3 +25,4 @@ function validPalidrome(s) {
   }
   return false;
 }
+console.log(validPalidrome('edee'));
