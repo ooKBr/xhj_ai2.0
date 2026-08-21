@@ -1,0 +1,12 @@
+{
+    "mcpServers":{
+        "filesystem":{
+         "type":"stdio",
+         "command":"npx",
+         "args":["-y",
+         "@modelcontextprotocol/server-filesystem",
+         "C:/Users/xhj/Desktop/db_ai/xhj_ai/ai/mcp/mcp-test"
+        ]
+        }
+    }
+}
