@@ -12,3 +12,7 @@ Generate 生成
 - question embedding 向量化 语义
 - 内容都embedding 
 - rag 向量相似度计算
+  
+## 掘金 的搜索
+- 提前将内容 embedding 
+需要向量数据库  milvus postgresql(mysql 一样关系数据库，但是支持向量存储)

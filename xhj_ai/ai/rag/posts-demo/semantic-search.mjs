@@ -46,8 +46,9 @@ const handleInput = async (answer) => {
     .map((item,index)=>`${index+1}. ${item.title}.${item.category}`)
     .join('\n');
     console.log(`\n搜索结果：\n${results}`);
-    rl.close();
+    // rl.close();
     // console.log(results[0]);
+    rl.question("\n请输入你要搜索的内容：",handleInput);
 }
-rl.question("\n请输入你要搜索的内容：",handleInput);0
+rl.question("\n请输入你要搜索的内容：",handleInput);
 
