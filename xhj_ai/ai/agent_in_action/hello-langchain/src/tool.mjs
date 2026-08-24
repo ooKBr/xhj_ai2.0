@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { ChatOpenAI } from '@langchain/openai';
-import { tool } from '@langchain/tools';
+import { tool } from '@langchain/core/tools';
 import { 
     HumanMessage,   // user  role: user
     SystemMessage,  
@@ -60,10 +60,42 @@ const messages = [
           可用工具：
           - read_file：读取文件内容(使用此工具来获取文件内容)
         `),
-        new HumanMessage('请读取 tool.mjs 文件内容并解释代码'),
+        new HumanMessage('请读取 src/tool.mjs 文件内容并解释代码'),
 ];
-
+// 变量 每次调用llm 都会覆盖
+// tools 继续调用工具
+//足够的上下文 可以直接生成了
 let response = await modelWithTools.invoke(messages);
 // console.log(JSON.stringify(response));
 messages.push(response);
 // 多个工具 await read  await write  并发执行？
+// response.tools ,提升性能，有多个任务 Promise.all tool promise 数组
+// tool 执行结果，每个结果带上tool id  ToolMessage 给messages
+// 把整个messages 数组 打包给llm，得到最后的结果
+
+while(response.tool_calls && response.tool_calls.length > 0) {
+    // 调用工具
+    console.log(`\n[检测到 ${response.tool_calls.length} 个工具调用]`);
+    const toolResults = await Promise.all(
+        response.tool_calls.map(async (toolCall) => {
+            // 需要检验 以及准备的逻辑
+            // 找到工具
+            const tool = tools.find(t => t.name === toolCall.name);
+            // 严谨性
+            if (!tool) {
+                return `错误：未找到工具 ${toolCall.name}`;
+            }
+            console.log(`[执行工具] ${toolCall.name}(
+                ${JSON.stringify(toolCall.args)})`);
+                // langchain tool 方法
+                // 容错性处理
+                try {
+                    const result = await tool.invoke(toolCall.args);
+                    return result;
+                } catch(err) {
+                    return `错误：${err.message}`;
+                }
+                const result = await tool.invoke(toolCall.args);
+        })
+    )
+}
