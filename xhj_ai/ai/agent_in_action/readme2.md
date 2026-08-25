@@ -34,3 +34,27 @@ llm 工程开发的便捷性，可读性 帮助
 - src 开发代码目录 
     - promise 特性
     async 函数 就是promise 实例， return resolve 并且return的结果就是
+
+## 总结第一个编程助手Agent
+- ReAct Agent 工作流框架 
+    分析Agent 的执行流程 每一步的reason act observe
+- langchain 
+    tools 声明 （async fn + schema(zod)）
+    invoke 执行 （message，tool，...）
+    4种Message 派生类
+    modelWithTools   llm 工作流 coze 节点之间连线
+    langchain 工程流 chatOpenAI 的实例化 -> 声明tools -> bindTools -> invoke
+    llm 工作流编排框架
+- Agent 工作流程
+  - llm 能力边界
+    - stateless + 不能够直接干活
+  - 不停的维护messages 数组
+  - llm reason不能直接生成，直接返回 带tool 的消息
+  - tool 执行 ToolMessage tool_id 加入
+  - 最简单的loop 有工具调用
+      没有呢 拿着所有的messages 去 最后一次调用llm  完成任务，拿到结果
+- Promise 升级
+    async 函数执行完后 是promise return的结果 是promise 的resolve值
+    promise.all  find方法，map方法
+    if(tool)    
+    try catch  // 企业级

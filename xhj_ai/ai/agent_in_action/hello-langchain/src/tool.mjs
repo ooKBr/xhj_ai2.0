@@ -98,4 +98,16 @@ while(response.tool_calls && response.tool_calls.length > 0) {
                 const result = await tool.invoke(toolCall.args);
         })
     )
+    response.tool_calls.forEach((toolCall,index) => {
+        messages.push(
+            new ToolMessage({
+                content:toolResults[index],
+                tool_call_id:toolCall.id,
+            }
+        )
+    )
+    });
+    response = await modelWithTools.invoke(messages);
+    console.log(response);
+    messages.push(response);
 }
