@@ -6,7 +6,6 @@ import { spawn } from 'node:child_process';
 import z from 'zod';
 
 //  I/O 工具
-
 // 读文件工具
 const readFileTool = tool(
     async({ filePath }) => {   // tool 的功能函数
@@ -91,13 +90,44 @@ const listDirectoryTool = tool(
 
 // 执行命令工具（带实时输出）
 const executeCommandTool = tool(
-    async ({ command, directoryPath }) => {},
+    async ({ command, directoryPath }) => {
+        const cwd = directoryPath || process.cwd();
+        console.log(`[工具调用] execute_command(${command})
+        工作目录：${cwd}`);
+        return new Promise((resolve, reject) => {
+            const [cmd, ...args] = command.split(' ');
+            const child = spawn(cmd, args, {
+                cwd,
+                stdio: 'inherit',
+                shell: true,
+            })
+            let errorMsg = '';
+            child.on('error', (err) => {
+                errorMsg = err.message
+            });
+            child.on('close', (code) => {
+                if (code === 0) { // 运行顺利，成功退出
+                   console.log(`[工具调用] execute_command(${command})
+                   成功执行`)
+                   const cwdInfo = workingDirectory?
+                   `\n\n重要提示：命令在目录“${workingDirectory}” 执行`
+                   : '';
+                   resolve(`命令行成功执行 ${command}${cwdInfo}`);
+                } else {
+                    console.log(`[工具调用] execute_command(${command})
+                    退出码：${code}`)
+                    resolve(`命令执行失败，退出码：${code}\n 错误：${errorMsg}`)
+                }
+            })
+        })
+        
+    },
     {
-        name:'execute_command',
-        description:'执行系统命令，支持指定工作目录，实时显示输出',
-        schema:z.object({
-            command:z.string().describe('要执行的命令'),
-            directoryPath:z.string().describe('工作目录(推荐指定)')
+        name: 'execute_command',
+        description: '执行系统命令，支持指定工作目录，实时显示输出',
+        schema: z.object({
+            command: z.string().describe('要执行的命令'),
+            directoryPath: z.string().describe('工作目录(推荐指定)')
         })
     }
 )
