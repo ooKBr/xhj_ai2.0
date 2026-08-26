@@ -15,13 +15,14 @@ import {
     writeFileTool,
     listDirectoryTool
 } from './all-tools.mjs';
+import chalk from 'chalk';  // 颜色输出 突出重点
 
 const model = new ChatOpenAI({
     modelName:'deepseek-v4-pro',
     apiKey:process.env.DEEPSEEK_API_KEY,
     temperature:0, // 严谨性 0-1 0 最严谨 1 最随机  因为这里要调用工具
     configuration: {
-        baseURL:'https://api.deepseek.com/v1',
+       baseURL:'https://api.deepseek.com/v1',
     }
 });
 
@@ -36,9 +37,10 @@ const modelWithTools = model.bindTools(tools);
 
 const case1 = `
 创建一个功能丰富的React TodoList 应用：
-1.创建项目： pnpm create react-todo-app --template react-ts
+1.创建项目： 
+echo -e "n\nn" | pnpm create vite react-todo-app --template react-ts
 2.修改 src/App.tsx ，实现完整功能的TodoList：
--  台南佳、删除、标记完成
+-  添加、删除、标记完成
 - 分类筛选（全部/进行中/已完成）
 - 统计信息显示
 - localStorage 数据持久化
@@ -75,9 +77,46 @@ async function runAgentWithTools(query,maxIterations=30) {
                 这是错误的！因为 workingDirectory 已经在 react-todo-app 目录了，再 cd react-todo-app 会找不到目录
                 - 正确示例: { command: "pnpm install", workingDirectory: "react-todo-app" }
                 这就对了！workingDirectory 已经切换到 react-todo-app，直接执行命令即可      
+            5. 严禁执行 dir /b /s、find / 这类会递归扫描整个项目的命令，否则会导致输出过大模型溢出。
+               需要看目录结构时，只调用 list_directory 工具，并且不要进入 node_modules 目录。
 
-                回复要简洁，只说做了什么
+             回复要简洁，只说做了什么
             `),
             new HumanMessage(query)
-    ]
+    ];
+    // ReAct 循环是Agent 执行流程
+    for(let i = 0;i < maxIterations;i++) {
+        console.log(chalk.bgGreen(`正在等待第${i}次 AI 思考...`));
+        const response = await modelWithTools.invoke(messages);
+        messages.push(response);
+        if(!response.tool_calls || 
+            response.tool_calls.length === 0)
+         {
+            console.log(`\n:AI 最终回复：\n${response.content}\n`);
+            return response.content;
+        }
+
+        for (const toolCall of response.tool_calls) {
+            const foundTool = tools.find(t => t.name === toolCall.name);
+            if (foundTool) {
+               const toolResult = await foundTool.invoke(toolCall.args);
+               messages.push(new ToolMessage({
+                   content:toolResult,
+                   tool_call_id:toolCall.id
+               }))
+            }
+        }
+    }
+     return messages[messages.length-1].content;
 }
+
+try {
+    await runAgentWithTools(case1);
+} catch(err) {
+    console.error(`\n 错误：${err.message}`);
+}
+
+setTimeout(() => {
+  console.log("超时兜底强制退出进程");
+  process.exit(0);
+}, 1000000);

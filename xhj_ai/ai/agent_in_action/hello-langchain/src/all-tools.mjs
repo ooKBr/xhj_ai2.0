@@ -54,10 +54,10 @@ const writeFileTool = tool(
         }
     },
     {
-        name:'write-file',
+        name:'write_file',
         description:'向指定路径写入文件内容，自动创建目录',
         schema:z.object({
-            filePath:z.string().description('文件路径'),
+            filePath:z.string().describe('文件路径'),
             content:z.string().describe('要写入的文件内容')
         })
     }
@@ -90,8 +90,8 @@ const listDirectoryTool = tool(
 
 // 执行命令工具（带实时输出）
 const executeCommandTool = tool(
-    async ({ command, directoryPath }) => {
-        const cwd = directoryPath || process.cwd();
+    async ({ command, workingDirectory }) => {
+        const cwd = workingDirectory || process.cwd();
         console.log(`[工具调用] execute_command(${command})
         工作目录：${cwd}`);
         return new Promise((resolve, reject) => {
@@ -127,7 +127,15 @@ const executeCommandTool = tool(
         description: '执行系统命令，支持指定工作目录，实时显示输出',
         schema: z.object({
             command: z.string().describe('要执行的命令'),
-            directoryPath: z.string().describe('工作目录(推荐指定)')
+            workingDirectory: z.string().describe('工作目录(推荐指定)')
         })
     }
 )
+
+// 导出所有工具
+export {
+    readFileTool,
+    writeFileTool,
+    listDirectoryTool,
+    executeCommandTool
+}
