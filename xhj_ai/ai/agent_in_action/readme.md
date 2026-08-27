@@ -72,3 +72,6 @@ Agent 其实也不复杂，llm 本身也可以思考，规划，给它用Tool �
 - Promise.all([promise数组]) 并行执行多个任务，等待所有任务 都完成，才返回结果，结果顺序与promise数组顺序一致
 
 即将打造高性能的第一个Agent
+
+
+  
