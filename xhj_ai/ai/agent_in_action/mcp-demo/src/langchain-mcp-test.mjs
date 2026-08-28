@@ -62,7 +62,7 @@ const mcpClient = new MultiServerMCPClient({
         new HumanMessage(query)
     ];
     for (let i = 0; i < maxIterations; i++) {
-        console.log(chalk.bgGreen(`正在等待AI思考，第${i+1}轮...`));
+        console.log(chalk.bgRed(`正在等待AI思考，第${i+1}轮...`));
         const response = await modelWithTools.invoke(messages);
         messages.push(response);
 
