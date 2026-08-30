@@ -26,3 +26,8 @@ Retrival 检索器
  invoke()
 
 AI 发展太迅猛 langchain 版本更新太快，需要看文档 
+
+- retriever.invoke(3) top_k
+  在相似度查询的基础上，还会做去重、过滤、rerank 等
+- vector.similaritySearchWithScore(3) 只做向量查询
+score 会表达内容的质量 如果数据质量不高，也会返回不够理想的数据， 此时需要增加高质量的数据，向量化
