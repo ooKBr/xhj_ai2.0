@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xhjAI日报</title>
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --accent: #4f46e5;
+    --tag-bg: #eef2ff;
+    --tag-text: #4338ca;
+    --border: #e5e7eb;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 3rem;
+  }
+  .container { max-width: 1000px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 2rem; }
+  header h1 {
+    font-size: 2.1rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  header .date { color: var(--muted); margin-top: 0.5rem; font-size: .95rem; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  }
+  .card .source {
+    font-size: .78rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    gap: .5rem;
+  }
+  .card h2 { font-size: 1.05rem; line-height: 1.45; }
+  .card .summary {
+    font-size: .9rem;
+    line-height: 1.65;
+    color: #374151;
+    flex: 1;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .tag {
+    font-size: .75rem;
+    padding: .2rem .6rem;
+    border-radius: 999px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+  }
+  .card .read-more { font-size: .8rem; color: var(--accent); font-weight: 600; }
+  footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 2.5rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>[xhjAI日报-__DATE__]</h1>
+    <p class="date">每日 AI 行业资讯精选 · 点击卡片查看原文</p>
+  </header>
+  <main class="grid" id="grid"></main>
+  <footer>由 xhj-ai-daily 自动生成 · 点击卡片查看原文</footer>
+</div>
+
+<script>
+  // 数据占位：替换为 JSON 数组，每个元素结构：
+  // { "title": "中文标题", "source": "来源", "date": "发布日期",
+  //   "summary": "50-100 字中文摘要", "tags": ["标签1", "标签2"], "url": "原文链接" }
+  const NEWS = __NEWS_DATA__;
+
+  const grid = document.getElementById('grid');
+  NEWS.forEach(item => {
+    const a = document.createElement('a');
+    a.className = 'card';
+    a.href = item.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    const tags = (item.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+    a.innerHTML = `
+      <div class="source"><span>${item.source}</span><span>${item.date || ''}</span></div>
+      <h2>${item.title}</h2>
+      <p class="summary">${item.summary}</p>
+      <div class="tags">${tags}</div>
+      <span class="read-more">查看原文 →</span>
+    `;
+    grid.appendChild(a);
+  });
+</script>
+</body>
+</html>

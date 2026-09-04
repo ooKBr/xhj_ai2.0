@@ -24,3 +24,14 @@ AI 硬件  录音 -> 文本 -> 会议纪要 -> skill 自动化
 - skill - creator
   会有自己封装skill 的需求，当我们平凡重复的时候
   anthorpic 官方推出的 skill-creator 标准化、简化skill 的封装的。
+  随时创建自己的skill
+
+- SKILL.md 固定格式
+  - 基础头部
+  使用yaml 格式隔开
+  name
+  description 描述功能，给llm 判断是否要使用的
+
+## 场景二
+每天，我们都被海量的AI 信息淹没。想要了解行业动态，但没有时间一个一个网站去刷？
+重复但必须得学习/工作
