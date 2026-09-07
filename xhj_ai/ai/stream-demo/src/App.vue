@@ -46,24 +46,52 @@ const update = async () => {
     // 二进制编码
     const decoder = new TextDecoder();  // 二进制流服务的
     let done = false;  // 开关变量   data:[DONE]
-    let buffer = '';  // 缓存
+    let buffer = '';  // 截断做准备 上一次JSON.parse() 失败的 不完整json completion
 
     while(!done) {
       // 嘬一口， 嘬到了resolve， 没嘬到，继续等
+      // value 的最后一个data:[DONE],告诉后面已经没有数据了，可以不用嘬了
       const { value,done: doneReading } = await reader?.read();  // reader对象 兼容性，老浏览器不一定支持
       done = doneReading;  // 设置开关变量
       // 除了把本轮的value 要处理之外，之前也可能会有东西要一起处理 所以要加 buffer
       // chunk 一小块 json 格式
       // delta 偏移量  一小块一小块 的增量
       // 解析 json 字符串 choices[0].message.content
+      // json 断开的可能 动态 buffer 不一定有值
+      // 如果有，说明上一个chunk 最后一行，是不完整的json，buffer用来记录上一次还没有处理完的json
       const chunkValue = buffer + decoder.decode(value);
       // console.log(chunkValue);
-      buffer = '';
+      buffer = '';  // 上一次的已经拼到这一次来了，buffer 的任务完成了，所以要重新清空buffer
       // json 字符串 多行数据
       // 一次发送一行，也可能发送多行 取决于llm 计算速度和任务量
       // 每次由 data: 开始 又有数据来了
       const lines = chunkValue.split('\n')
+      // 为了严谨性，比如可能插入的时候不止一个\n ，加一个只有碰到data: 才处理的限制
         .filter((line) => line.startsWith('data:'))
+
+        for (const line of lines) {
+          // data:
+          const incoming = line.slice(6);  // 切掉申明头data： 共六个（因为还有一个空格）
+          if (incoming === '[DONE]') {  // [DONE] 表示流完成 说明后面没有数据了
+             // 表示结束的两种情况，一种是在next Token 的时候就设置了done:true
+             // 一种是单独的发送一条data:[DONE] 文本流
+             done = true;
+             break;
+          }
+          // incoming content 是json 字符串
+          try {
+            const data = JSON.parse(incoming);
+            const delta = data.choices[0].delta.content;
+            if(data && delta) {
+              content.value += delta;
+            }
+          } catch (err) {
+            // data:  一定要加  没有 } 结束，证明是把中间截断了，
+            // 把他存到buffer里面并且前面加上data: ，就变成一个合格的能被解析的json字符串
+            buffer = `data: ${incoming}`
+          }
+
+        }
     }
 
   } else {
