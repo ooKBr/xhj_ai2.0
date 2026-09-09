@@ -22,8 +22,12 @@ app.get('/', (req,res) => {
 
 // 流式输出的bff层 让前端调用
 app.get('/stream', async (req,res) => {
+    // prompt req 解析
+    // fetch  deepseek  stream:true
+    // llm 流式输出
+    // console.log(req.query.request);
     res.json({
-        message:'Hello World!'
+        prompt: req.query.request,
     })
 })
 
