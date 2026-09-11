@@ -26,9 +26,27 @@ app.get('/stream', async (req,res) => {
     // fetch  deepseek  stream:true
     // llm 流式输出
     // console.log(req.query.request);
-    res.json({
-        prompt: req.query.request,
+    // res.json({
+    //     prompt: req.query.prompt,
+    // })
+    const { prompt } = req.query;
+    try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Authorization': 
+          `Bearer ${process.env.VITE_DEEPSEEK_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-v4-flash',
+        stream: true,
+        messages: [{ role: 'user', content: prompt}]
+      })
     })
+    console.log(response.body) // ReadableStream
+  } catch(err) {
+
+  }
 })
 
 app.listen(3000,() => {

@@ -1,11 +1,11 @@
 <script setup>
 // 一次性的输出->流式   前端 -> bff层 -> 后端
-
-// fetch('/api/stream')
-//   .then(res => res.json())
-//   .then(data => {
-//     console.log(data);
-//   })
+// 前端不用再处理流式输出，直接调用bff层的接口即可，会很简洁
+fetch('/api/stream?prompt=hello')
+  .then(res => res.json())
+  .then(data => {
+    console.log(data);
+  })
 </script>
 <template>
   <div class="container">

@@ -14,7 +14,8 @@ export default defineConfig({
       // 跨域，是指在浏览器环境下，同源策略的安全性，在后端环境下，没有这个限制
       target: 'http://localhost:3000',
       secure: false,
-      //  /api/stream
+      //  /api/stream  正则匹配，找到 /api 开头的请求，都替换为空  \ 表示转义
+      //  /api/stream  -> stream
       rewrite: path => path.replace(/^\/api/, '')
     }
     }
