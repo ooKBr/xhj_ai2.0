@@ -33,3 +33,23 @@ vue 通过 template，script，style 三明治的方式写在一个文件中 所
 react？ 用tsx封装一个组件（函数） 函数就是组件
   只要函数 返回html 就是组件
   函数return 之前的js 部分，  css？ 引入样式
+
+## tailwind 运行原理
+- 不是原生css
+- 原子类css框架，提供一堆的css类名（原子类）
+- 有了这些后就不用写css样式了，选择器+css rules 太低效了。
+- 只要vite 插件就可以使用，将我们申明的类名 它的样式提取出来，加到代码里
+- 原子类名（英文单词）， 简单，语义化很好，特别适合自然语义编程。
+  如果说以前的css 选择器，rules(key:value) 太底层，太低效 二进制
+  tailwindcss 写类名就好，已成为 vibe UI的基本构成
+
+- className？
+  类名class
+  class 是js 里的类名（OOP）关键字，函数里面写JSX
+  所以不能用class，不然它会理解魏你要声明一个js类，className 没有这个问题
+
+- JSX
+  JSX 是 React 专用语法（模板），能在 JS 代码里直接写HTML 标签，编译后转为原生 DOM 操作。
+  react 最为骄傲的一大特性之一，非常方便的表达UI 界面
+  jsvascript with xml  
+  <div></div>  html 特有的XML
