@@ -47,7 +47,7 @@ function App() {
   // js 脚本 数据逻辑交互
   // count 数据状态
   // 修改count  setCount
-  // const [count,setCount] = useState(0);  // useState 响应式  相当于vue 里的ref
+  // const [count,setCount] = useState(0);  // useState 响应式  相当于vue 里的ref 
   return (
   //  返回html jsx  react的UI表现格式
   // <div className="flex justify-center">
@@ -70,7 +70,7 @@ function App() {
         </h2>
       </div>
       <div className="flex flex-col items-center px-4">
-        <p className="mx-w-[510px] mb-4">
+        <p className="max-w-[510px] mb-4">
           You are about to load 
             <a
               href="https://huggingface.co/onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX"
@@ -102,10 +102,22 @@ function App() {
             loaded, it can even be used offline. The source code for the demo
             is available on{" "}
         </p> 
+        {
+          // 报错界面状态，响应式
+          error && (
+            <div className="text-red-500 text-center mb-2">
+            <p className="mb-1">
+              Unable to load model due to the following error:
+            </p>
+            <p className="text-sm">{error}</p>
+            </div>
+          )
+        }
       </div>
     </div>
   </div>):(
     <div>您的浏览器还不支持WebGPU</div>
+  )
   )
 }
 
