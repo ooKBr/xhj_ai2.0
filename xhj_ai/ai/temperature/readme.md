@@ -34,4 +34,24 @@ Top K  随机样本 得分排序
   temperature 小， Top K 大， 准确，艺术性
   temperature 大， Top K 小， 在较高质量范围里随机
 
-  
+## langchain 
+lang(uage) + chain(llm 工作链|流编排)
+### 核心模块 @langchain/core
+- mesages 对话列表
+- output_parsers 输出解析器
+  帮我们自动解析出相应的格式
+- tools
+- prompts 提示词模板
+
+为什么需要langchain？
+开发更快，提供了相应的业务类
+AI Agent 应用 生成式、概率分布 有点黑盒
+要不觉得干的活不太智能，要不太智能，不知道它怎么干出来，
+chain 就是把AI 工作链条上的每个节点链起来。
+
+## AI 工作流  把他们chain 起来
+- llm 两个 创意和严谨的 适合不同的业务。
+- PromptTemplate
+- StringOutputParser
+
+start-> llm->PromptTemplate->StringOutputParser -> end
