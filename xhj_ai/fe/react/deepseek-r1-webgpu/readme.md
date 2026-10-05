@@ -53,3 +53,17 @@ react？ 用tsx封装一个组件（函数） 函数就是组件
   react 最为骄傲的一大特性之一，非常方便的表达UI 界面
   jsvascript with xml  
   <div></div>  html 特有的XML
+
+## React 合成事件
+- onClick 最原始的 DOM 0级事件监听
+  html，css，js 三剑客 不要耦合在一起，模块化分离
+- DOM 1 ？
+  DOM n ？ html 标准的执行迭代
+  没有DOM 1 事件监听，因为这个版本没有更新事件相关
+- addEventListener DOM 2级事件监听
+- 同一个dom 元素可以多次监听同一事件
+- react 代码洁癖，能不发明新概念就不发明
+  vue 发明 @ 事件绑定 ...
+  react 直接用已在的概念 onClick  作为高手没有学习成本
+- react 里的事件并不是原生事件，是合成事件
+  
