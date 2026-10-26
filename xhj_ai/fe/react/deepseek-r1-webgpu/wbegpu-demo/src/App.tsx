@@ -7,6 +7,7 @@ import {
   useState,  // react 函数式思想 hooks，以use 开头
   useEffect  // 生命周期钩子函数  组件挂载时执行
 } from 'react'
+import Progress from './components/Progress'
 import './App.css'
 
 function App() {
@@ -20,11 +21,17 @@ function App() {
   // 错误对象数据状态
   const [error,setError] = useState(null); 
   // 加载信息
-  const [loadingMessage,setLoadingMessage] = useState('');
+  // const [loadingMessage,setLoadingMessage] = useState('');
+  const [loadingMessage,setLoadingMessage] = useState('开始加载');
   const [progressItems,setProgressItems] = useState([{
-    file: 'model.onnx',
-    progress:0,
-    total:1234567
+    text: 'model.onnx',
+    percentage:0,
+    total:12345678
+  },
+{
+    text: 'model2.onnx',
+    percentage:10,
+    total:123456798
   }]);
   
   // 浏览器 导航栏 是否支持 WebGPU
@@ -123,10 +130,38 @@ function App() {
         select-none"
         disabled={status !== null || error !== null}
         onClick={() => {
-          setStatus('loading');
+          setStatus("loading");
         }}>Load Model</button>
       </div>
     </div>
+    {
+      // loading 状态  llm 加载中 文件数组 驱动下载进度条
+     status === "loading" && (
+      // tailwindcss 适配方便的
+      <div className="w-full max-w-[500px] text-left
+      mx-auto p-4 bottom-0 mt-auto">
+        <p className="text-center mb-1">{loadingMessage}</p>
+       {/* { 
+        循环输出 vue v-for  react 绝对不去发明
+        map ? 一个数组返回一个新数组
+        原来json数组 => 渲染的进度条jsx 
+       }  */}
+         {
+          // 循环输出，react 用了原生js
+          progressItems.map(({file,progress,total},i) => (
+            // 组件函数可以以自定义标签的方式，类html插入
+            // 开关标签的 xml
+            // 自闭和标签
+            // App 的子组件
+            <Progress 
+            text={text} 
+            percentage={percentage} 
+            total={total}
+            />
+          ))
+         }
+      </div>
+    )}
   </div>):(
     <div>您的浏览器还不支持WebGPU</div>
   )
@@ -134,3 +169,4 @@ function App() {
 }
 
 export default App
+
